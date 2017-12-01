@@ -1,0 +1,11 @@
+{
+    "name": "alahtarin/homeboard",
+    "authors": [
+        {
+            "name": "alahtarin",
+            "email": "alex.lahtarin@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
