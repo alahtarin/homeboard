@@ -10,6 +10,10 @@
 			.container {
 				margin-top: 30px;
 			}
+			
+			.alarm-wrap {
+				padding: 0 5px 5px 5px;
+			}
 		</style>
   </head>
   <body>
@@ -19,24 +23,30 @@
 		
 	<div class="container">
 		<div class="row">
-			<div class=" card">
+			<div class="col-6">
+			<div class="card">
 				<div class="card-header">
 					Relax alarms
 				</div>
 			  	<div class="card-body">
 			    	<p class="card-text">Select the desired timing for the relax alarms</p>
-			  	</div>
-					<div class="row">
-						<div class="col-10 offset-1">
-							<form>
-								<input type="text" class="form-control form-control-sm alarm" placeholder="Slot 1" value="20:14">
-								<input type="text" class="form-control form-control-sm alarm" placeholder="Slot 2" value="20:22">
-								<input type="text" class="form-control form-control-sm alarm" placeholder="Slot 3" value="14:00">
-								<input type="text" class="form-control form-control-sm alarm" placeholder="Slot 4" value="15:30">
-								<input type="text" class="form-control form-control-sm alarm" placeholder="Slot 5" value="17:00">
-							</form>
+						<form>
+							<div class="row">
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 1" value="00:10"></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 2" value="19:35"></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 3" value="14:00"></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 4" value="15:30"></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 5" value="17:00"></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 6" value=""></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 7" value=""></div>
+							<div class="col-3 alarm-wrap"><input type="text" class="form-control form-control-sm alarm" placeholder="Slot 8" value=""></div>
 						</div>
-					</div>
+						</form>
+			  	</div>
+					<div class="card-footer">
+						<small class="text-muted" id="next-alarm"></small>
+				  </div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -46,6 +56,41 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 		
 		<script>
+			var messageCounter = 0;
+			function log(message) {
+				console.log("#" + ++messageCounter + ": " + message);
+			}
+			
+			class Alarm {
+				constructor(hours, minutes) {
+					this.hours = parseInt(hours);
+					this.minutes = parseInt(minutes);
+					
+					log("New alarm at " + this.hours + ":" + this.minutes);
+				}
+				
+				tick(now) {
+					if (now.getHours() == this.hours && now.getMinutes() == this.minutes && now.getSeconds() < 1) {
+						alert('Time to rest, Alex');
+					}
+				}
+				
+				minutesLeft(now) {
+					var nextHours = now.getHours();
+					var nextMinutes = now.getMinutes();
+					
+					if (nextHours == this.hours && nextMinutes == this.minutes) {
+							return 0;
+					}
+					
+					if (this.hours < nextHours || this.hours == nextHours && this.minutes < nextMinutes) {
+						return (24 - (nextHours - this.hours)) * 60 - (nextMinutes - this.minutes);
+					
+					}
+					
+					return (this.hours - nextHours) * 60 - (nextMinutes - this.minutes)
+				}
+			}
 			
 			$(document).ready(function() {
 				var alarms = initAlarms();
@@ -55,17 +100,38 @@
 			function initAlarms() {
 				alarms = [];
 				$('input.alarm').each(function(i, e) {
-					alarms.push(e.value);
+					[hours, minutes] = e.value.split(':');
+
+					if (isNaN(parseInt(hours)) || isNaN(parseInt(minutes))) {
+						return;
+					}
+					
+					alarm = new Alarm(hours, minutes);
+					alarms.push(alarm);
+					
 				});
 					
-				var i = 1;
 				setInterval(function() {
-					now = new Date();
-					
+					var now = new Date();
+					var minEta = 99999;
 					alarms.forEach(function(alarm) {
-						[alarmHours, alarmMinutes] = alarm.split(':');
-						if (now.getHours() == alarmHours && now.getMinutes() == alarmMinutes && now.getSeconds() < 1) {
-							alert('Time to rest, Alex');
+						var eta = alarm.minutesLeft(now);
+						if (eta == 0) {
+							if (now.getSeconds() < 1) {
+								alert('Time to rest, Alex');
+							}
+						} else {
+							minEta = Math.min(eta, minEta);
+						}
+						
+						$nextAlarm = $("#next-alarm");
+						if (minEta == 1) {
+							$nextAlarm.text("Next alarm in a minute");
+						} else if (minEta < 60) {
+							$nextAlarm.text("Next alarm in " + minEta + " minutes");
+						} else {
+							hoursLeft = parseInt(minEta / 60); 
+							$nextAlarm.text("Next alarm in " + (hoursLeft == 1 ? "one hour" : (hoursLeft + " hours")));
 						}
 					})						
 				}, 1000)
