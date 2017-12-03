@@ -19,7 +19,7 @@ services:
       factory: ['\Doctrine\DBAL\DriverManager', getConnection]
       arguments:
         -
-          dbname: '%env(DATABASE_DATABASE)%'
+          dbname: '%env(DATABASE_NAME)%'
           user: '%env(DATABASE_USER)%'
           password: '%env(DATABASE_PASSWORD)%'
           host: '%env(DATABASE_HOST)%'
