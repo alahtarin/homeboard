@@ -4,20 +4,9 @@ namespace App\DomainModel\Repository;
 
 use App\DomainModel\Entity\Target;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
 
-class TargetRepository
+class TargetRepository extends AbstractRepository
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-
     /**
      * @return ArrayCollection|Target[]
      */
