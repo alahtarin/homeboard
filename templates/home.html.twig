@@ -33,8 +33,8 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">Click on the targets that have been accomplished today</p>
-                    <button class="btn btn-secondary today-target">Plank</button>
-                    <button class="btn btn-secondary today-target">Symfony exam</button>
+                    <button class="btn btn-secondary today-target">Warm-up</button>
+                    <button class="btn btn-secondary today-target">Exam</button>
                     <button class="btn btn-secondary today-target">Gym</button>
                 </div>
                 <div class="card-footer">
@@ -133,30 +133,33 @@
 
 			});
 
-			setInterval(function() {
-				var now = new Date();
-				var minEta = 99999;
-				alarms.forEach(function(alarm) {
-					var eta = alarm.minutesLeft(now);
-					if (eta == 0) {
-						if (now.getSeconds() < 1) {
-							alert('Time to rest, Alex');
-						}
-					} else {
-						minEta = Math.min(eta, minEta);
-					}
-
-					$nextAlarm = $("#next-alarm");
-					if (minEta == 1) {
-						$nextAlarm.text("Next alarm in a minute");
-					} else if (minEta < 60) {
-						$nextAlarm.text("Next alarm in " + minEta + " minutes");
-					} else {
-						hoursLeft = parseInt(minEta / 60);
-						$nextAlarm.text("Next alarm in " + (hoursLeft == 1 ? "one hour" : (hoursLeft + " hours")));
-					}
-				})
-			}, 1000)
+			setInterval(checkAlarms, 1000);
+            checkAlarms();
 		}
+
+        function checkAlarms() {
+            var now = new Date();
+            var minEta = 99999;
+            alarms.forEach(function(alarm) {
+                var eta = alarm.minutesLeft(now);
+                if (eta == 0) {
+                    if (now.getSeconds() < 1) {
+                        alert('Time to rest, Alex');
+                    }
+                } else {
+                    minEta = Math.min(eta, minEta);
+                }
+
+                $nextAlarm = $("#next-alarm");
+                if (minEta == 1) {
+                    $nextAlarm.text("Next alarm in a minute");
+                } else if (minEta < 60) {
+                    $nextAlarm.text("Next alarm in " + minEta + " minutes");
+                } else {
+                    hoursLeft = parseInt(minEta / 60);
+                    $nextAlarm.text("Next alarm in " + (hoursLeft == 1 ? "one hour" : (hoursLeft + " hours")));
+                }
+            });
+        }
 	</script>
 {% endblock %}
