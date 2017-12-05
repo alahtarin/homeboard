@@ -12,15 +12,34 @@ class TargetRepository extends AbstractRepository
      */
     public function findForToday(): ArrayCollection
     {
-        $query = $this->connection->prepare('SELECT * FROM targets');
-        $query->execute();
+        $query = <<<SQL
+SELECT * FROM targets
+WHERE date = CURDATE()
+SQL;
+
+        $statement = $this->connection->executeQuery($query);
 
         $collection = new ArrayCollection();
-        while ($row = $query->fetch()) {
+        while ($row = $statement->fetch()) {
             $collection->set($row['id'], $this->mapRowToEntity($row));
         }
 
         return $collection;
+    }
+
+    public function save(Target $target)
+    {
+        $query = <<<SQL
+INSERT INTO targets (date, type)
+VALUES (:date, :type);
+SQL;
+
+        $this->connection->executeQuery($query, [
+            'date' => $target->getDate()->format('Y-m-d'),
+            'type' => $target->getType(),
+        ]);
+
+        $target->setId($this->connection->lastInsertId());
     }
 
     private function mapRowToEntity(array $row)

@@ -1,3 +1,9 @@
 index:
   path: /
   defaults: { _controller: 'App\Application\Controller\HomeController::execute' }
+  methods: [GET]
+
+complete_target:
+  path: complete-target
+  defaults: { _controller: 'App\Application\Controller\TargetController::complete' }
+  methods: [POST]
